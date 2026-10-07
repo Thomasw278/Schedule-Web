@@ -44,14 +44,13 @@
             100% { background-position: 0% 50%; }
         }
 
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.3); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(150,150,150,0.5); }
 
-        .sidebar-scroll::-webkit-scrollbar { width: 4px; }
-        .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
-        .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.2); border-radius: 10px; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         .task-item { animation: slideUp 0.3s ease forwards; }
 
@@ -62,59 +61,63 @@
 
         #pie-chart { transition: background 0.5s ease-out; }
         * { transition: background-color 0.3s, border-color 0.3s, color 0.3s; }
-
-        select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 0.7rem center;
-            background-size: 1em;
+        
+        /* Fix tampilan icon jam pada input time bawaan */
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            filter: invert(0.5);
+        }
+        .dark input[type="time"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.8);
         }
     </style>
 </head>
 <body id="body-bg" class="bg-gradient-light h-screen overflow-hidden flex items-center justify-center text-gray-800 dark:text-gray-100 transition-colors duration-500">
 
-    <div class="bg-white/45 dark:bg-black/40 backdrop-blur-[24px] border border-white/50 dark:border-white/10 shadow-[0_30px_60px_-12px_rgba(0,0,0,0.3)] dark:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.7)] w-[90vw] max-w-[1050px] h-[85vh] rounded-[18px] overflow-hidden flex transition-colors duration-500">
+    <!-- Container Utama: Diubah agar responsif menggunakan flex-col di HP dan flex-row di PC -->
+    <div class="bg-white/45 dark:bg-black/40 backdrop-blur-[24px] border border-white/50 dark:border-white/10 shadow-[0_30px_60px_-12px_rgba(0,0,0,0.3)] dark:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.7)] w-full h-full md:w-[90vw] md:max-w-[1050px] md:h-[85vh] rounded-none md:rounded-[18px] overflow-hidden flex flex-col md:flex-row transition-colors duration-500">
         
         <!-- Sidebar -->
-        <div class="w-72 flex flex-col h-full bg-white/25 dark:bg-white/5 border-r border-white/40 dark:border-white/10">
-            <div class="p-6 pb-2">
-                <div class="flex space-x-2.5 mb-6">
+        <div class="w-full md:w-72 flex flex-col shrink-0 md:h-full bg-white/25 dark:bg-white/5 border-b md:border-b-0 md:border-r border-white/40 dark:border-white/10">
+            <div class="p-4 md:p-6 pb-2">
+                <div class="hidden md:flex space-x-2.5 mb-6">
                     <div class="w-3.5 h-3.5 rounded-full bg-[#ff5f56] border border-[#e0443e] shadow-sm"></div>
                     <div class="w-3.5 h-3.5 rounded-full bg-[#ffbd2e] border border-[#dea123] shadow-sm"></div>
                     <div class="w-3.5 h-3.5 rounded-full bg-[#27c93f] border border-[#1aab29] shadow-sm"></div>
                 </div>
                 
-                <div class="text-center bg-white/30 dark:bg-black/30 rounded-2xl p-4 shadow-sm border border-white/50 dark:border-white/10 backdrop-blur-md">
-                    <div id="live-time" class="text-3xl font-bold tracking-tighter text-gray-800 dark:text-white">00:00</div>
-                    <div id="live-date" class="text-xs font-medium mt-1 uppercase tracking-wide text-gray-600 dark:text-gray-400">Memuat tanggal...</div>
+                <div class="text-center bg-white/30 dark:bg-black/30 rounded-2xl p-4 shadow-sm border border-white/50 dark:border-white/10 backdrop-blur-md flex flex-row md:flex-col items-center justify-between md:justify-center">
+                    <div id="live-time" class="text-2xl md:text-3xl font-bold tracking-tighter text-gray-800 dark:text-white">00:00</div>
+                    <div id="live-date" class="text-[10px] md:text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-400 md:mt-1">Memuat tanggal...</div>
                 </div>
             </div>
             
-            <div class="flex-1 overflow-y-auto sidebar-scroll px-6 py-2">
-                <h2 class="text-xs font-bold uppercase tracking-widest mb-3 mt-2 text-gray-500 dark:text-gray-400">Daily Planner</h2>
-                <nav class="space-y-1.5 mb-8" id="filter-nav">
-                    <button data-filter="all" class="filter-item active w-full flex items-center px-4 py-2.5 text-sm rounded-xl hover:bg-white/50 dark:hover:bg-white/10 transition-all">
-                        <i class="fas fa-inbox w-6 text-gray-600 dark:text-gray-400"></i> All Task
+            <div class="flex-1 overflow-visible md:overflow-y-auto px-4 md:px-6 py-2">
+                <h2 class="hidden md:block text-xs font-bold uppercase tracking-widest mb-3 mt-2 text-gray-500 dark:text-gray-400">Daily Planner</h2>
+                
+                <!-- Menu Filter responsif scroll horizontal di HP -->
+                <nav class="flex flex-row md:flex-col gap-2 md:gap-0 md:space-y-1.5 mb-2 md:mb-8 overflow-x-auto hide-scrollbar pb-2 md:pb-0" id="filter-nav">
+                    <button data-filter="all" class="filter-item active whitespace-nowrap md:w-full flex items-center px-4 py-2.5 text-sm rounded-xl hover:bg-white/50 dark:hover:bg-white/10 transition-all">
+                        <i class="fas fa-inbox md:w-6 mr-2 md:mr-0 text-gray-600 dark:text-gray-400"></i> All Task
                     </button>
-                    <button data-filter="upcoming" class="filter-item w-full flex items-center px-4 py-2.5 text-sm rounded-xl hover:bg-white/50 dark:hover:bg-white/10 transition-all">
-                        <i class="fas fa-calendar-day w-6 text-blue-500"></i> Upcoming
+                    <button data-filter="upcoming" class="filter-item whitespace-nowrap md:w-full flex items-center px-4 py-2.5 text-sm rounded-xl hover:bg-white/50 dark:hover:bg-white/10 transition-all">
+                        <i class="fas fa-calendar-day md:w-6 mr-2 md:mr-0 text-blue-500"></i> Upcoming
                     </button>
-                    <button data-filter="finish" class="filter-item w-full flex items-center px-4 py-2.5 text-sm rounded-xl hover:bg-white/50 dark:hover:bg-white/10 transition-all">
-                        <i class="fas fa-check-circle w-6 text-green-500"></i> Finish
+                    <button data-filter="finish" class="filter-item whitespace-nowrap md:w-full flex items-center px-4 py-2.5 text-sm rounded-xl hover:bg-white/50 dark:hover:bg-white/10 transition-all">
+                        <i class="fas fa-check-circle md:w-6 mr-2 md:mr-0 text-green-500"></i> Finish
                     </button>
                 </nav>
 
-                <div class="mb-4">
+                <!-- Up Next Disembunyikan di layar HP agar hemat ruang -->
+                <div class="hidden md:block mb-4">
                     <h2 class="text-xs font-bold uppercase tracking-widest mb-3 text-gray-500 dark:text-gray-400">Up Next</h2>
                     <div id="up-next-widget" class="bg-gradient-to-br from-blue-500/90 to-indigo-600/90 dark:from-indigo-600/80 dark:to-purple-700/80 backdrop-blur-md rounded-2xl p-4 shadow-lg border border-white/20 text-white transition-all">
                     </div>
                 </div>
             </div>
 
-            <div class="p-6 pt-4 border-t border-white/30 dark:border-white/10 bg-white/10 dark:bg-black/10 backdrop-blur-sm">
+            <!-- Statistik Disembunyikan di layar HP agar hemat ruang -->
+            <div class="hidden md:block p-6 pt-4 border-t border-white/30 dark:border-white/10 bg-white/10 dark:bg-black/10 backdrop-blur-sm">
                 <h2 class="text-xs font-bold uppercase tracking-widest mb-3 text-center text-gray-500 dark:text-gray-400">Statistik Hari Ini</h2>
                 <div class="bg-white/40 dark:bg-black/30 rounded-2xl p-4 shadow-sm border border-white/50 dark:border-white/10 flex flex-col items-center">
                     <div class="relative w-20 h-20 mb-2">
@@ -129,39 +132,39 @@
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col bg-white/10 dark:bg-black/20">
-            <div class="h-20 flex items-center justify-between px-10 border-b border-white/30 dark:border-white/10 backdrop-blur-md">
-                <h1 class="text-2xl font-semibold tracking-tight text-gray-800 dark:text-white" id="header-title">All Task</h1>
+        <div class="flex-1 flex flex-col bg-white/10 dark:bg-black/20 overflow-hidden">
+            <div class="h-16 md:h-20 flex items-center justify-between px-4 md:px-10 border-b border-white/30 dark:border-white/10 backdrop-blur-md shrink-0">
+                <h1 class="text-xl md:text-2xl font-semibold tracking-tight text-gray-800 dark:text-white truncate pr-2" id="header-title">All Task</h1>
                 
-                <div class="flex items-center gap-5">
-                    <div id="sync-indicator" class="flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full bg-white/30 dark:bg-black/30 border border-white/40 dark:border-white/10 text-gray-600 dark:text-gray-300">
+                <div class="flex items-center gap-2 md:gap-5">
+                    <div id="sync-indicator" class="flex items-center gap-2 text-[10px] md:text-xs font-medium px-2.5 md:px-3 py-1.5 rounded-full bg-white/30 dark:bg-black/30 border border-white/40 dark:border-white/10 text-gray-600 dark:text-gray-300">
                         <i class="fas fa-circle-notch fa-spin text-blue-500" id="sync-icon"></i>
-                        <span id="sync-text">Memuat...</span>
+                        <span id="sync-text" class="hidden md:inline">Memuat...</span>
                     </div>
 
-                    <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/60 border border-white/50 dark:border-white/10 flex items-center justify-center transition-all shadow-sm">
-                        <i id="theme-icon" class="fas fa-moon text-gray-700 dark:text-yellow-300 text-lg"></i>
+                    <button onclick="toggleTheme()" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/60 border border-white/50 dark:border-white/10 flex items-center justify-center transition-all shadow-sm">
+                        <i id="theme-icon" class="fas fa-moon text-gray-700 dark:text-yellow-300 text-sm md:text-lg"></i>
                     </button>
 
-                    <button onclick="openModal()" class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md shadow-blue-500/30 flex items-center gap-2 transform hover:scale-105 active:scale-95 ml-2 border border-white/20">
-                        <i class="fas fa-plus"></i> Tambah Jadwal
+                    <button onclick="openModal()" class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-3 md:px-5 py-2 md:py-2.5 rounded-xl text-xs md:text-sm font-semibold transition-all shadow-md shadow-blue-500/30 flex items-center gap-2 transform hover:scale-105 active:scale-95 border border-white/20 whitespace-nowrap">
+                        <i class="fas fa-plus"></i> <span class="hidden sm:inline">Tambah Jadwal</span>
                     </button>
                 </div>
             </div>
 
             <!-- Task List Area -->
-            <div class="flex-1 overflow-y-auto p-10">
+            <div class="flex-1 overflow-y-auto p-4 md:p-10 hide-scrollbar">
                 <div id="initial-loading" class="text-center py-24">
                     <i class="fas fa-spinner fa-spin text-4xl text-blue-500 mb-4"></i>
-                    <p class="text-gray-500 dark:text-gray-400">Menyinkronkan dengan Google Sheets...</p>
+                    <p class="text-sm md:text-base text-gray-500 dark:text-gray-400">Menyinkronkan dengan Google Sheets...</p>
                 </div>
 
                 <div id="empty-state" class="hidden text-center py-24">
-                    <div class="w-24 h-24 bg-white/40 dark:bg-black/30 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-white/60 dark:border-white/10">
-                        <i class="fas fa-clipboard-list text-4xl text-gray-400 dark:text-gray-500"></i>
+                    <div class="w-20 h-20 md:w-24 md:h-24 bg-white/40 dark:bg-black/30 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-white/60 dark:border-white/10">
+                        <i class="fas fa-clipboard-list text-3xl md:text-4xl text-gray-400 dark:text-gray-500"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-200">Belum ada jadwal</h3>
-                    <p class="text-sm mt-2 text-gray-500 dark:text-gray-400">Tetap produktif, tambahkan jadwal baru sekarang.</p>
+                    <h3 class="text-lg md:text-xl font-semibold text-gray-700 dark:text-gray-200">Belum ada jadwal</h3>
+                    <p class="text-xs md:text-sm mt-2 text-gray-500 dark:text-gray-400">Tetap produktif, tambahkan jadwal baru sekarang.</p>
                 </div>
                 
                 <div id="task-list" class="space-y-3.5 hidden">
@@ -171,10 +174,10 @@
         </div>
     </div>
 
-    <!-- Modal Form -->
-    <div id="task-modal" class="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-40 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-white/90 dark:bg-gray-800/95 backdrop-blur-2xl border border-white dark:border-gray-600 rounded-3xl shadow-2xl w-full max-w-md p-7 transform scale-95 transition-transform duration-300" id="modal-content">
-            <h2 class="text-2xl font-bold mb-5 tracking-tight text-gray-800 dark:text-white" id="modal-title">Tambah Jadwal</h2>
+    <!-- Modal Form (Input waktu diubah ke type="time") -->
+    <div id="task-modal" class="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-40 opacity-0 pointer-events-none transition-opacity duration-300 px-4">
+        <div class="bg-white/90 dark:bg-gray-800/95 backdrop-blur-2xl border border-white dark:border-gray-600 rounded-3xl shadow-2xl w-full max-w-md p-6 md:p-7 transform scale-95 transition-transform duration-300" id="modal-content">
+            <h2 class="text-xl md:text-2xl font-bold mb-5 tracking-tight text-gray-800 dark:text-white" id="modal-title">Tambah Jadwal</h2>
             <form id="task-form" onsubmit="saveTask(event)">
                 <input type="hidden" id="task-id">
                 
@@ -183,22 +186,14 @@
                     <input type="text" id="task-name" required class="w-full px-4 py-2.5 bg-white dark:bg-black/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-800 dark:text-white placeholder-gray-400" placeholder="Contoh: Meeting Klien">
                 </div>
                 
-                <div class="flex gap-6 mb-8">
+                <div class="flex gap-4 md:gap-6 mb-8">
                     <div class="flex-1">
                         <label class="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">Waktu Mulai</label>
-                        <div class="flex items-center gap-2">
-                            <select id="start-hour" class="flex-1 px-3 py-2.5 bg-white dark:bg-black/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-800 dark:text-white text-center cursor-pointer"></select>
-                            <span class="font-bold text-gray-400">:</span>
-                            <select id="start-minute" class="flex-1 px-3 py-2.5 bg-white dark:bg-black/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-800 dark:text-white text-center cursor-pointer"></select>
-                        </div>
+                        <input type="time" id="start-time" required class="w-full px-3 py-2.5 bg-white dark:bg-black/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-800 dark:text-white text-center cursor-pointer">
                     </div>
                     <div class="flex-1">
                         <label class="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">Waktu Selesai</label>
-                        <div class="flex items-center gap-2">
-                            <select id="end-hour" class="flex-1 px-3 py-2.5 bg-white dark:bg-black/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-800 dark:text-white text-center cursor-pointer"></select>
-                            <span class="font-bold text-gray-400">:</span>
-                            <select id="end-minute" class="flex-1 px-3 py-2.5 bg-white dark:bg-black/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-800 dark:text-white text-center cursor-pointer"></select>
-                        </div>
+                        <input type="time" id="end-time" required class="w-full px-3 py-2.5 bg-white dark:bg-black/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-gray-800 dark:text-white text-center cursor-pointer">
                     </div>
                 </div>
 
@@ -211,7 +206,7 @@
     </div>
 
     <!-- Confirm Modal -->
-    <div id="confirm-modal" class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-md flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div id="confirm-modal" class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-md flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-300 px-4">
         <div class="bg-white/90 dark:bg-gray-800/95 backdrop-blur-2xl border border-white/50 dark:border-gray-600/50 rounded-[24px] shadow-2xl w-full max-w-sm p-7 transform scale-95 transition-transform duration-300 text-center" id="confirm-content">
             <div class="w-16 h-16 bg-red-100/80 dark:bg-red-900/40 rounded-full flex items-center justify-center mx-auto mb-5 border border-red-200 dark:border-red-800/50 shadow-inner">
                 <i class="fas fa-trash-alt text-2xl text-red-500 dark:text-red-400 drop-shadow-sm"></i>
@@ -235,7 +230,6 @@
         let tasks = [];
         let currentFilter = 'all';
 
-        // --- HELPER UNTUK MEMBERSIHKAN FORMAT WAKTU & SORTING ---
         function cleanTimeFormat(rawTime) {
             if (!rawTime) return "00:00";
             let timeStr = String(rawTime);
@@ -250,7 +244,6 @@
             return timeStr.substring(0, 5);
         }
 
-        // Mendapatkan total menit dari jam "HH:mm" untuk kalkulasi
         function getMinutesFromStr(timeStr) {
             const parts = timeStr.split(':');
             if (parts.length >= 2) {
@@ -339,8 +332,10 @@
             e.preventDefault();
             const idInput = document.getElementById('task-id').value;
             const name = document.getElementById('task-name').value;
-            const start = `${document.getElementById('start-hour').value}:${document.getElementById('start-minute').value}`;
-            const end = `${document.getElementById('end-hour').value}:${document.getElementById('end-minute').value}`;
+            
+            // Logika disederhanakan karena menggunakan input time HTML5
+            const start = document.getElementById('start-time').value || "00:00";
+            const end = document.getElementById('end-time').value || "00:00";
 
             const isEdit = !!idInput;
             const payloadData = {
@@ -365,18 +360,6 @@
             renderTasks(); 
             syncToServer(isEdit ? 'EDIT' : 'ADD', payloadData, isEdit ? "Jadwal berhasil diperbarui" : "Jadwal baru ditambahkan");
         }
-
-        function populateTimeDropdowns() {
-            const hours = Array.from({length: 24}, (_, i) => i.toString().padStart(2, '0'));
-            const minutes = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
-            const hourOptions = hours.map(h => `<option value="${h}">${h}</option>`).join('');
-            const minOptions = minutes.map(m => `<option value="${m}">${m}</option>`).join('');
-            document.getElementById('start-hour').innerHTML = hourOptions;
-            document.getElementById('end-hour').innerHTML = hourOptions;
-            document.getElementById('start-minute').innerHTML = minOptions;
-            document.getElementById('end-minute').innerHTML = minOptions;
-        }
-        populateTimeDropdowns();
 
         let isDarkMode = false;
         function toggleTheme() {
@@ -440,19 +423,16 @@
             const now = new Date();
             const currentMins = now.getHours() * 60 + now.getMinutes();
 
-            // Saring yang belum selesai
             let upcomingTasks = tasks.filter(t => !t.isFinished);
             
-            // Urutkan untuk Up Next (Prioritas waktu terdekat di masa depan)
             upcomingTasks.sort((a, b) => {
                 const timeA = getMinutesFromStr(cleanTimeFormat(a.start));
                 const timeB = getMinutesFromStr(cleanTimeFormat(b.start));
                 return timeA - timeB;
             });
 
-            // Ambil yang waktunya belum terlewat (atau yang paling awal jika semua kelewat)
             let next = upcomingTasks.find(t => getMinutesFromStr(cleanTimeFormat(t.start)) >= currentMins);
-            if (!next && upcomingTasks.length > 0) next = upcomingTasks[0]; // Fallback ke jadwal pertama
+            if (!next && upcomingTasks.length > 0) next = upcomingTasks[0]; 
 
             if (next) {
                 const cleanStart = cleanTimeFormat(next.start);
@@ -497,7 +477,6 @@
             const now = new Date();
             const currentMins = now.getHours() * 60 + now.getMinutes();
 
-            // --- LOGIKA SORTING TERDEKAT (UPCOMING FIRST) ---
             filteredTasks.sort((a, b) => {
                 const timeA = getMinutesFromStr(cleanTimeFormat(a.start));
                 const timeB = getMinutesFromStr(cleanTimeFormat(b.start));
@@ -508,14 +487,11 @@
                 const isUpcomingA = diffA >= 0;
                 const isUpcomingB = diffB >= 0;
 
-                // 1. Yang akan datang (Upcoming) diletakkan di atas
                 if (isUpcomingA && !isUpcomingB) return -1;
                 if (!isUpcomingA && isUpcomingB) return 1;
 
-                // 2. Jika sama-sama upcoming, urutkan dari yang paling dekat dengan jam sekarang
                 if (isUpcomingA && isUpcomingB) return diffA - diffB;
 
-                // 3. Jika sudah lewat, urutkan sesuai waktu aslinya (kronologis)
                 return timeA - timeB;
             });
 
@@ -529,7 +505,7 @@
                     const cleanStart = cleanTimeFormat(task.start);
                     const cleanEnd = cleanTimeFormat(task.end);
                     
-                    const baseStyle = "task-item p-4.5 rounded-2xl flex items-center justify-between group backdrop-blur-md transition-all duration-300";
+                    const baseStyle = "task-item p-4 md:p-4.5 rounded-2xl flex items-center justify-between group backdrop-blur-md transition-all duration-300";
                     const statusStyle = task.isFinished 
                         ? "bg-white/20 dark:bg-black/20 border border-green-400/30 shadow-[inset_0_0_20px_rgba(74,222,128,0.15)] scale-[0.98] opacity-80" 
                         : "bg-white/70 dark:bg-black/30 border border-white/80 dark:border-white/10 shadow-sm hover:shadow-md";
@@ -537,24 +513,24 @@
                     div.className = `${baseStyle} ${statusStyle}`;
                     
                     div.innerHTML = `
-                        <div class="flex items-center gap-4 p-1">
-                            <button onclick="toggleStatus(${task.id})" class="w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-300 shrink-0 ${task.isFinished ? 'bg-green-500 border-green-400 text-white shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'border-gray-400 hover:border-blue-400 dark:border-gray-500 bg-white/50 dark:bg-black/50'}">
-                                ${task.isFinished ? '<i class="fas fa-check text-xs"></i>' : ''}
+                        <div class="flex items-center gap-3 md:gap-4 p-1 overflow-hidden">
+                            <button onclick="toggleStatus(${task.id})" class="w-6 h-6 md:w-7 md:h-7 rounded-full border-2 flex items-center justify-center transition-all duration-300 shrink-0 ${task.isFinished ? 'bg-green-500 border-green-400 text-white shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'border-gray-400 hover:border-blue-400 dark:border-gray-500 bg-white/50 dark:bg-black/50'}">
+                                ${task.isFinished ? '<i class="fas fa-check text-[10px] md:text-xs"></i>' : ''}
                             </button>
-                            <div>
+                            <div class="min-w-0">
                                 <div class="flex items-center gap-2">
-                                    <h3 class="text-base font-semibold tracking-tight transition-colors duration-300 ${task.isFinished ? 'text-green-700 dark:text-green-400' : 'text-gray-800 dark:text-white'}">${task.name}</h3>
-                                    ${task.isFinished ? '<span class="px-2 py-0.5 text-[10px] font-bold bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400 rounded-md tracking-wider">DONE</span>' : ''}
+                                    <h3 class="text-sm md:text-base font-semibold tracking-tight transition-colors duration-300 truncate ${task.isFinished ? 'text-green-700 dark:text-green-400' : 'text-gray-800 dark:text-white'}">${task.name}</h3>
+                                    ${task.isFinished ? '<span class="px-2 py-0.5 text-[9px] md:text-[10px] font-bold bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400 rounded-md tracking-wider shrink-0">DONE</span>' : ''}
                                 </div>
-                                <p class="text-[13px] font-medium mt-0.5 flex items-center gap-1.5 transition-colors duration-300 ${task.isFinished ? 'text-green-600/70 dark:text-green-400/60' : 'text-gray-500 dark:text-gray-400'}"><i class="far fa-clock"></i> ${cleanStart} - ${cleanEnd}</p>
+                                <p class="text-xs md:text-[13px] font-medium mt-0.5 flex items-center gap-1.5 transition-colors duration-300 ${task.isFinished ? 'text-green-600/70 dark:text-green-400/60' : 'text-gray-500 dark:text-gray-400'}"><i class="far fa-clock"></i> ${cleanStart} - ${cleanEnd}</p>
                             </div>
                         </div>
-                        <div class="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2.5 mr-2">
-                            <button onclick="editTask(${task.id})" class="w-9 h-9 rounded-full bg-white dark:bg-gray-700 text-blue-500 dark:text-blue-400 hover:bg-blue-50 shadow-sm border border-gray-100 dark:border-gray-600 flex items-center justify-center transition-transform hover:scale-110">
-                                <i class="fas fa-pen text-sm"></i>
+                        <div class="opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity flex gap-1.5 md:gap-2.5 shrink-0">
+                            <button onclick="editTask(${task.id})" class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white dark:bg-gray-700 text-blue-500 dark:text-blue-400 hover:bg-blue-50 shadow-sm border border-gray-100 dark:border-gray-600 flex items-center justify-center transition-transform hover:scale-110">
+                                <i class="fas fa-pen text-xs md:text-sm"></i>
                             </button>
-                            <button onclick="deleteTask(${task.id})" class="w-9 h-9 rounded-full bg-white dark:bg-gray-700 text-red-500 dark:text-red-400 hover:bg-red-50 shadow-sm border border-gray-100 dark:border-gray-600 flex items-center justify-center transition-transform hover:scale-110">
-                                <i class="fas fa-trash text-sm"></i>
+                            <button onclick="deleteTask(${task.id})" class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white dark:bg-gray-700 text-red-500 dark:text-red-400 hover:bg-red-50 shadow-sm border border-gray-100 dark:border-gray-600 flex items-center justify-center transition-transform hover:scale-110">
+                                <i class="fas fa-trash text-xs md:text-sm"></i>
                             </button>
                         </div>
                     `;
@@ -571,10 +547,9 @@
             
             const now = new Date();
             const currHour = now.getHours().toString().padStart(2, '0');
-            document.getElementById('start-hour').value = currHour;
-            document.getElementById('end-hour').value = currHour;
-            document.getElementById('start-minute').value = "00";
-            document.getElementById('end-minute').value = "30";
+            // Set ke waktu bawaan saat tambah tugas (jam sekarang sampai jam sekarang + 30 menit)
+            document.getElementById('start-time').value = `${currHour}:00`;
+            document.getElementById('end-time').value = `${currHour}:30`;
 
             document.getElementById('modal-title').innerText = "Tambah Jadwal";
             const modal = document.getElementById('task-modal');
@@ -599,21 +574,8 @@
                 document.getElementById('task-id').value = task.id;
                 document.getElementById('task-name').value = task.name;
                 
-                const cleanStart = cleanTimeFormat(task.start);
-                const cleanEnd = cleanTimeFormat(task.end);
-                
-                const startTime = cleanStart.split(':');
-                const endTime = cleanEnd.split(':');
-                
-                if(startTime.length >= 2) {
-                    document.getElementById('start-hour').value = startTime[0].padStart(2, '0');
-                    document.getElementById('start-minute').value = startTime[1].padStart(2, '0');
-                }
-                
-                if(endTime.length >= 2) {
-                    document.getElementById('end-hour').value = endTime[0].padStart(2, '0');
-                    document.getElementById('end-minute').value = endTime[1].padStart(2, '0');
-                }
+                document.getElementById('start-time').value = cleanTimeFormat(task.start);
+                document.getElementById('end-time').value = cleanTimeFormat(task.end);
 
                 document.getElementById('modal-title').innerText = "Edit Jadwal";
                 const modal = document.getElementById('task-modal');
